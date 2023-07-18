@@ -1,0 +1,53 @@
+Explain the following code snippet. Explain what the code is attempting to do? You can explain by: Giving use-cases of what this construct/pattern could be used for?
+ 
+package main
+
+import "fmt"
+
+func main() {
+    cnp := make(chan func(), 10)
+    for i := 0; i < 4; i++ {
+        go func() {
+            for f := range cnp {
+                f()
+            }
+        }()
+    }
+    cnp <- func() {
+        fmt.Println("HERE1")
+    }
+    fmt.Println("Hello")
+}
+
+ans:- This code uses the goroutines and channels to implement concurrent pattern known as worker pool
+      This code is attempting to do:
+       
+      1. the code  starts by importing the necessary packages, including "fmt" for printing messages.
+      
+      2. The main() function is the entry point of the program.
+
+      3. the line 'cpn:= make(chan func(),10)' here we created a buffered channel with the size of 10 that can hold 10 function,
+         the name of channel is cpn. this channel will be used to pass the function between goroutines.
+
+      4. the 'for' loop is creating the four goroutines.Each goroutine waits for functions to be received from the cnp channel 
+         and then executes those functions.
+
+      5. Inside the loop, an anonymous function is defined using the 'go' keyword. This function continuously listens for functions
+         coming from the 'cnp' channel using the range syntax for 'f := range cnp'. 
+
+      6. After starting the goroutines, the code reaches the line 'cnp <- func() { fmt.Println("HERE1") }'. 
+         This line sends a function to the cnp channel. but it does not print "HERE1" that is because the main function does not wait 
+         for other fuctions to complete its execution.If we want to print the line "HERE1" the we can just add few time.sleep(2) before the
+         line 'fmt.Println("Hello")'. and also here it is asynchronous so it does not wait for channel to read the sent data.
+
+      7. Finally, the code prints "Hello" using fmt.Println().   
+
+      Use-cases of this construct/pattern could include:
+        . Distributing tasks: If you have a set of tasks that can be executed independently and concurrently, you can use the worker pool 
+          pattern to distribute those tasks among multiple worker goroutines.
+
+        . Controlling concurrency: By limiting the number of worker goroutines (in this case, four), you can control the level of concurrency 
+          and prevent overwhelming the system with too many concurrent operations.
+
+        . Asynchronous processing: The worker pool pattern allows you to process functions asynchronously, freeing up the main goroutine to
+          perform other tasks while the worker goroutines handle the execution of the functions.
